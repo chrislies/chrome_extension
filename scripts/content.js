@@ -20,16 +20,31 @@ if (article) {
 
   (date ?? heading).insertAdjacentElement("afterend", badge);
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const element = document.createElement("div");
-element.classList.add("element");
-const txt = document.createElement("p");
+let isExtensionEnabled = true;
 
-const body = document.querySelector("body");
+function updateStyling() {
+  const allElements = document.getElementsByTagName("*");
 
-txt.textContent = "Hi from me";
-element.appendChild(txt);
-
-if (body) {
-  body.insertAdjacentElement("afterbegin", element);
+  for (let i = 0; i < allElements.length; i++) {
+    const currElement = allElements[i];
+    const bgColor = getComputedStyle(currElement).backgroundColor;
+    //prettier-ignore
+    if (bgColor && bgColor !== "transparent") {
+      currElement.style.backgroundColor = isExtensionEnabled ? "rgba(28, 27, 27, 0.88)" : bgColor;
+      currElement.style.color = isExtensionEnabled ? "white" : "black";
+    }
+  }
 }
+
+// Initial styling when the page loads
+updateStyling();
+
+// Listen for messages from the background script
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.toggleExtension) {
+    isExtensionEnabled = !isExtensionEnabled;
+    updateStyling();
+  }
+});
