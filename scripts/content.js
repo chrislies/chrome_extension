@@ -23,16 +23,27 @@ if (article) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const allElements = document.getElementsByTagName("*");
+const bodyElement = document.body;
 
+// Handle document body background color
+//prettier-ignore
+if (bodyElement.style.backgroundColor === "") {
+  bodyElement.style.backgroundColor = "rgb(20,20,20)";
+  bodyElement.style.color = "white";
+} else if (isRGBGreaterThanGray(bodyElement.style.backgroundColor)) {
+  bodyElement.style.backgroundColor = rgbToComplement(bodyElement.style.backgroundColor);
+  bodyElement.style.color = rgbToComplement(bodyElement.style.color);
+}
+
+//prettier-ignore
 if (allElements) {
   for (let i = 0; i < allElements.length; i++) {
     const currElement = allElements[i];
     const bgColor = getComputedStyle(currElement).backgroundColor;
-    const textColor = getComputedStyle(currElement).color;
     if (isRGBGreaterThanGray(bgColor)) {
       currElement.style.backgroundColor = rgbToComplement(bgColor);
-      currElement.style.color = rgbToComplement(textColor);
     }
+    currElement.style.color = "white";
   }
 }
 
