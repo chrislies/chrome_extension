@@ -22,29 +22,45 @@ if (article) {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-let isExtensionEnabled = true;
+const allElements = document.getElementsByTagName("*");
 
-function updateStyling() {
-  const allElements = document.getElementsByTagName("*");
-
+if (allElements) {
   for (let i = 0; i < allElements.length; i++) {
     const currElement = allElements[i];
     const bgColor = getComputedStyle(currElement).backgroundColor;
-    //prettier-ignore
-    if (bgColor && bgColor !== "transparent") {
-      currElement.style.backgroundColor = isExtensionEnabled ? "rgba(28, 27, 27, 0.88)" : bgColor;
-      currElement.style.color = isExtensionEnabled ? "white" : "black";
+    const textColor = getComputedStyle(currElement).color;
+    if (isRGBGreaterThanGray(bgColor)) {
+      currElement.style.backgroundColor = rgbToComplement(bgColor);
+      currElement.style.color = rgbToComplement(textColor);
     }
   }
 }
 
-// Initial styling when the page loads
-updateStyling();
+function rgbToComplement(rgb) {
+  // Extracting the individual RGB components
+  const components = rgb.match(/\d+/g);
+  const red = parseInt(components[0]);
+  const green = parseInt(components[1]);
+  const blue = parseInt(components[2]);
 
-// Listen for messages from the background script
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.toggleExtension) {
-    isExtensionEnabled = !isExtensionEnabled;
-    updateStyling();
-  }
-});
+  // Calculating the complement
+  const complementRed = 255 - red;
+  const complementGreen = 255 - green;
+  const complementBlue = 255 - blue;
+
+  // Formatting the result in RGB format
+  const complementColor = `rgb(${complementRed}, ${complementGreen}, ${complementBlue})`;
+
+  // console.log(rgb, components, complementColor);
+  return complementColor;
+}
+
+function isRGBGreaterThanGray(rgb) {
+  // Extracting the individual RGB components
+  const components = rgb.match(/\d+/g);
+  const red = parseInt(components[0]);
+  const green = parseInt(components[1]);
+  const blue = parseInt(components[2]);
+
+  return red > 100 || green > 100 || blue > 100;
+}
