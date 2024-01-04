@@ -1,0 +1,70 @@
+.switch {
+  --width: 50px;
+  --height: calc(var(--width) / 2);
+  --border-radius: calc(var(--height) / 7);
+
+  display: inline-block;
+  cursor: pointer;
+}
+
+.toggle__input {
+  display: none;
+}
+
+.toggle__fill {
+  position: relative;
+  width: var(--width);
+  height: calc(var(--height)); /* Adjust the height as needed */
+  border-radius: var(--border-radius);
+  background: #dddddd;
+  transition: background 0.3s;
+}
+
+.toggle__input:checked ~ .toggle__fill {
+  background: rgb(20, 20, 20);
+}
+
+.toggle__fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: var(--height);
+  background: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+  border-radius: var(--border-radius);
+  transition: transform 0.2s;
+}
+
+.toggle__input:checked ~ .toggle__fill::after {
+  transform: translateX(var(--height));
+}
+
+.layer * {
+  /* border: 1px solid black; */
+  text-align: center;
+  width: 75%;
+  /* Adjust the height to center the content vertically */
+  height: 75%;
+  display: flex !important;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  font-size: calc(var(--width) * 0.2); /* Adjust the factor (0.1) as needed */
+}
+
+.layer {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  width: 100%;
+  height: 100%;
+}
+
+.moon {
+  color: white;
+}
+
+.sun {
+  color: white;
+}
