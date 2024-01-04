@@ -24,7 +24,7 @@ function applyExtensionStyles() {
       }
       if (currElement.tagName === "A") {
         // currElement.style.color = "#ef7f0a"; // orange
-        currElement.style.color = "";
+        // currElement.style.color = "";
         currElement.style.color = "#006493"; // blue
       } else {
         currElement.style.color = "white";
