@@ -1,27 +1,3 @@
-const article = document.querySelector("article");
-
-// `document.querySelector` may return null if the selector doesn't match anything.
-if (article) {
-  const text = article.textContent;
-  const wordMatchRegExp = /[^\s]+/g; // Regular expression
-  const words = text.matchAll(wordMatchRegExp);
-  // matchAll returns an iterator, convert to array to get word count
-  const wordCount = [...words].length;
-  const readingTime = Math.round(wordCount / 200);
-  const badge = document.createElement("p");
-  // Use the same styling as the publish information in an article's header
-  badge.classList.add("color-secondary-text", "type--caption");
-  badge.textContent = `⏱️ ${readingTime} min read`;
-
-  // Support for API reference docs
-  const heading = article.querySelector("h1");
-  // Support for article docs with date
-  const date = article.querySelector("time")?.parentNode;
-
-  (date ?? heading).insertAdjacentElement("afterend", badge);
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // Function to apply styles
 function applyExtensionStyles() {
   console.log("apply");
@@ -71,15 +47,20 @@ function removeExtensionStyles() {
   }
 }
 
+// Apply or remove styles based on the extension state
+function updateExtensionState(isEnabled) {
+  if (isEnabled) {
+    applyExtensionStyles();
+  } else {
+    removeExtensionStyles();
+  }
+}
+
 // Add an event listener for messages from popup.js
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.enabled !== undefined) {
     // Update the extension behavior based on the toggle switch state
-    if (message.enabled) {
-      applyExtensionStyles();
-    } else {
-      removeExtensionStyles();
-    }
+    updateExtensionState(message.enabled);
   }
 });
 
