@@ -22,30 +22,66 @@ if (article) {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const allElements = document.getElementsByTagName("*");
-const bodyElement = document.body;
+// Function to apply styles
+function applyExtensionStyles() {
+  console.log("apply");
+  const allElements = document.getElementsByTagName("*");
+  const bodyElement = document.body;
 
-// Handle document body background color
-//prettier-ignore
-if (bodyElement.style.backgroundColor === "") {
-  bodyElement.style.backgroundColor = "rgb(20,20,20)";
-  bodyElement.style.color = "white";
-} else if (isRGBGreaterThanGray(bodyElement.style.backgroundColor)) {
-  bodyElement.style.backgroundColor = rgbToComplement(bodyElement.style.backgroundColor);
-  bodyElement.style.color = rgbToComplement(bodyElement.style.color);
-}
+  // Handle document body background color
+  if (bodyElement.style.backgroundColor === "") {
+    bodyElement.style.backgroundColor = "rgb(20,20,20)";
+    bodyElement.style.color = "white";
+  } else if (isRGBGreaterThanGray(bodyElement.style.backgroundColor)) {
+    bodyElement.style.backgroundColor = rgbToComplement(
+      bodyElement.style.backgroundColor
+    );
+    bodyElement.style.color = rgbToComplement(bodyElement.style.color);
+  }
 
-//prettier-ignore
-if (allElements) {
-  for (let i = 0; i < allElements.length; i++) {
-    const currElement = allElements[i];
-    const bgColor = getComputedStyle(currElement).backgroundColor;
-    if (isRGBGreaterThanGray(bgColor)) {
-      currElement.style.backgroundColor = rgbToComplement(bgColor);
+  if (allElements) {
+    for (let i = 0; i < allElements.length; i++) {
+      const currElement = allElements[i];
+      const bgColor = getComputedStyle(currElement).backgroundColor;
+      if (isRGBGreaterThanGray(bgColor)) {
+        currElement.style.backgroundColor = rgbToComplement(bgColor);
+      }
+      currElement.style.color = "white";
     }
-    currElement.style.color = "white";
   }
 }
+
+// Function to remove styles
+function removeExtensionStyles() {
+  console.log("remove");
+  const allElements = document.getElementsByTagName("*");
+  const bodyElement = document.body;
+
+  // Reset document body styles
+  bodyElement.style.backgroundColor = "";
+  bodyElement.style.color = "";
+
+  // Reset styles for all elements
+  if (allElements) {
+    for (let i = 0; i < allElements.length; i++) {
+      const currElement = allElements[i];
+      currElement.style.backgroundColor = "";
+      currElement.style.color = "";
+    }
+  }
+}
+
+// Add an event listener for messages from popup.js
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+  if (message.enabled !== undefined) {
+    // Update the extension behavior based on the toggle switch state
+    if (message.enabled) {
+      applyExtensionStyles();
+    } else {
+      removeExtensionStyles();
+    }
+  }
+});
 
 function rgbToComplement(rgb) {
   // Extracting the individual RGB components
