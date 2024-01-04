@@ -22,7 +22,11 @@ function applyExtensionStyles() {
       if (isRGBGreaterThanGray(bgColor)) {
         currElement.style.backgroundColor = rgbToComplement(bgColor);
       }
-      currElement.style.color = "white";
+      if (currElement.tagName === "A") {
+        currElement.style.color = "";
+      } else {
+        currElement.style.color = "white";
+      }
     }
   }
 }
