@@ -1,36 +1,19 @@
 // Function to apply styles
 function applyExtensionStyles() {
   console.log("apply");
-  const allElements = document.getElementsByTagName("*");
   const bodyElement = document.body;
 
   // Handle document body background color
   if (bodyElement.style.backgroundColor === "") {
     bodyElement.style.backgroundColor = "rgb(20,20,20)";
-    bodyElement.style.color = "white";
+    // bodyElement.style.color = "white";
   } else if (isRGBGreaterThanGray(bodyElement.style.backgroundColor)) {
     bodyElement.style.backgroundColor = rgbToComplement(
       bodyElement.style.backgroundColor
     );
-    bodyElement.style.color = rgbToComplement(bodyElement.style.color);
+    // bodyElement.style.color = rgbToComplement(bodyElement.style.color);
   }
-
-  if (allElements) {
-    for (let i = 0; i < allElements.length; i++) {
-      const currElement = allElements[i];
-      const bgColor = getComputedStyle(currElement).backgroundColor;
-      if (isRGBGreaterThanGray(bgColor)) {
-        currElement.style.backgroundColor = rgbToComplement(bgColor);
-      }
-      if (currElement.tagName === "A") {
-        // currElement.style.color = "#ef7f0a"; // orange
-        // currElement.style.color = "";
-        currElement.style.color = "#006493"; // blue
-      } else {
-        currElement.style.color = "white";
-      }
-    }
-  }
+  traverseNodes(document.body);
 }
 
 // Function to remove styles
@@ -98,3 +81,45 @@ function isRGBGreaterThanGray(rgb) {
 
   return red > 100 || green > 100 || blue > 100;
 }
+
+function invertColor(node) {
+  if (node.nodeType === Node.ELEMENT_NODE) {
+    let backgroundColor = getComputedStyle(node).backgroundColor;
+    if (isRGBGreaterThanGray(backgroundColor)) {
+      node.style.backgroundColor = rgbToComplement(backgroundColor);
+    }
+    let textColor = getComputedStyle(node).color;
+    // Check if the text color is not an empty string
+    if (textColor !== "") {
+      node.style.color = "white";
+      // node.style.color = rgbToComplement(textColor);
+    }
+  }
+  if (node.nodeType === Node.TEXT_NODE) {
+    let parentElement = node.parentElement;
+    if (parentElement.tagName === "A") {
+      parentElement.style.color = "#006493"; // blue
+    } else {
+      parentElement.style.color = "white";
+    }
+  }
+}
+
+function traverseNodes(node) {
+  invertColor(node);
+  for (const childNode of node.childNodes) {
+    traverseNodes(childNode);
+  }
+}
+
+const observer = new MutationObserver((mutationsList) => {
+  for (let mutation of mutationsList) {
+    if (mutation.type === "childList") {
+      mutation.addedNodes.forEach((addedNode) => {
+        traverseNodes(addedNode);
+      });
+    }
+  }
+});
+
+observer.observe(document.body, { childList: true, subtree: true });
