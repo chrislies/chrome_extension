@@ -1,6 +1,5 @@
 // Function to apply styles
 function applyExtensionStyles() {
-  console.log("apply");
   const bodyElement = document.body;
 
   // Handle document body background color
@@ -18,7 +17,6 @@ function applyExtensionStyles() {
 
 // Function to remove styles
 function removeExtensionStyles() {
-  console.log("remove");
   const allElements = document.getElementsByTagName("*");
   const bodyElement = document.body;
 
@@ -40,8 +38,12 @@ function removeExtensionStyles() {
 function updateExtensionState(isEnabled) {
   if (isEnabled) {
     applyExtensionStyles();
+    // Add back the MutationObserver if it was removed
+    observer.observe(document.body, { childList: true, subtree: true });
   } else {
     removeExtensionStyles();
+    // Disconnect the MutationObserver to stop further styling
+    observer.disconnect();
   }
 }
 
@@ -123,3 +125,11 @@ const observer = new MutationObserver((mutationsList) => {
 });
 
 observer.observe(document.body, { childList: true, subtree: true });
+
+// Add an event listener for messages from popup.js
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+  if (message.enabled !== undefined) {
+    // Update the extension behavior based on the toggle switch state
+    updateExtensionState(message.enabled);
+  }
+});
