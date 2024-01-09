@@ -121,7 +121,7 @@ const observer = new MutationObserver((mutationsList) => {
   }
 });
 
-observer.observe(document, { childList: true, subtree: true });
+// observer.observe(document.body, { childList: true, subtree: true });
 
 // Add an event listener for messages from popup.js
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
@@ -134,10 +134,12 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 // Apply or remove styles based on the extension state
 function updateExtensionState(isEnabled) {
   if (isEnabled) {
+    // console.log("apply");
     applyExtensionStyles();
     // Add back the MutationObserver if it was removed
-    observer.observe(document, { childList: true, subtree: true });
+    observer.observe(document.body, { childList: true, subtree: true });
   } else {
+    // console.log("remove");
     removeExtensionStyles();
     // Disconnect the MutationObserver to stop further styling
     observer.disconnect();
@@ -152,4 +154,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   }
 });
 
-applyExtensionStyles();
+if (document.querySelector("#toggleSwitch").checked) {
+  applyExtensionStyles();
+  observer.observe(document.body, { childList: true, subtree: true });
+}

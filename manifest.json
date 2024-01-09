@@ -3,7 +3,7 @@
   "name": "Dark Mode",
   "description": "Dark Mode Extension",
   "version": "1.0",
-  "permissions": ["webNavigation"],
+  "permissions": ["webNavigation", "storage"],
   "action": {
     "default_popup": "popup/popup.html",
     "default_icon": "images/icon128.png"
