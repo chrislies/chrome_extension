@@ -34,54 +34,50 @@ function removeExtensionStyles() {
   }
 }
 
-// Apply or remove styles based on the extension state
-function updateExtensionState(isEnabled) {
-  if (isEnabled) {
-    applyExtensionStyles();
-    // Add back the MutationObserver if it was removed
-    observer.observe(document.body, { childList: true, subtree: true });
-  } else {
-    removeExtensionStyles();
-    // Disconnect the MutationObserver to stop further styling
-    observer.disconnect();
-  }
-}
-
-// Add an event listener for messages from popup.js
-chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-  if (message.enabled !== undefined) {
-    // Update the extension behavior based on the toggle switch state
-    updateExtensionState(message.enabled);
-  }
-});
-
 function rgbToComplement(rgb) {
   // Extracting the individual RGB components
-  const components = rgb.match(/\d+/g);
-  const red = parseInt(components[0]);
-  const green = parseInt(components[1]);
-  const blue = parseInt(components[2]);
+  const components = rgb ? rgb.match(/\d+/g) : null;
 
-  // Calculating the complement
-  const complementRed = 255 - red;
-  const complementGreen = 255 - green;
-  const complementBlue = 255 - blue;
+  if (components && components.length >= 3) {
+    const red = parseInt(components[0]);
+    const green = parseInt(components[1]);
+    const blue = parseInt(components[2]);
 
-  // Formatting the result in RGB format
-  const complementColor = `rgb(${complementRed}, ${complementGreen}, ${complementBlue})`;
+    if (!isNaN(red) && !isNaN(green) && !isNaN(blue)) {
+      // Calculating the complement
+      const complementRed = 255 - red;
+      const complementGreen = 255 - green;
+      const complementBlue = 255 - blue;
 
-  // console.log(rgb, components, complementColor);
-  return complementColor;
+      // Formatting the result in RGB format
+      const complementColor = `rgb(${complementRed}, ${complementGreen}, ${complementBlue})`;
+
+      return complementColor;
+    }
+  }
+
+  // Handle the case when components are not available or invalid
+  console.error("Invalid or missing RGB components:", rgb);
+  return rgb;
 }
 
 function isRGBGreaterThanGray(rgb) {
   // Extracting the individual RGB components
-  const components = rgb.match(/\d+/g);
-  const red = parseInt(components[0]);
-  const green = parseInt(components[1]);
-  const blue = parseInt(components[2]);
+  const components = rgb ? rgb.match(/\d+/g) : null;
 
-  return red > 100 || green > 100 || blue > 100;
+  if (components && components.length >= 3) {
+    const red = parseInt(components[0]);
+    const green = parseInt(components[1]);
+    const blue = parseInt(components[2]);
+
+    if (!isNaN(red) && !isNaN(green) && !isNaN(blue)) {
+      return red > 100 || green > 100 || blue > 100;
+    }
+  }
+
+  // Handle the case when components are not available or invalid
+  console.error("Invalid or missing RGB components:", rgb);
+  return false;
 }
 
 function invertColor(node) {
@@ -115,6 +111,7 @@ function traverseNodes(node) {
 }
 
 const observer = new MutationObserver((mutationsList) => {
+  // applyExtensionStyles();
   for (let mutation of mutationsList) {
     if (mutation.type === "childList") {
       mutation.addedNodes.forEach((addedNode) => {
@@ -124,7 +121,7 @@ const observer = new MutationObserver((mutationsList) => {
   }
 });
 
-observer.observe(document.body, { childList: true, subtree: true });
+observer.observe(document, { childList: true, subtree: true });
 
 // Add an event listener for messages from popup.js
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
@@ -133,3 +130,26 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     updateExtensionState(message.enabled);
   }
 });
+
+// Apply or remove styles based on the extension state
+function updateExtensionState(isEnabled) {
+  if (isEnabled) {
+    applyExtensionStyles();
+    // Add back the MutationObserver if it was removed
+    observer.observe(document, { childList: true, subtree: true });
+  } else {
+    removeExtensionStyles();
+    // Disconnect the MutationObserver to stop further styling
+    observer.disconnect();
+  }
+}
+
+// Add an event listener for messages from popup.js
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+  if (message.enabled !== undefined) {
+    // Update the extension behavior based on the toggle switch state
+    updateExtensionState(message.enabled);
+  }
+});
+
+applyExtensionStyles();

@@ -12,7 +12,8 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
 // Listen for web navigation events
 chrome.webNavigation.onCompleted.addListener(function (details) {
-  // Check the extension state and send a message to content script
-  let isEnabled = toggleState;
-  chrome.tabs.sendMessage(details.tabId, { enabled: isEnabled });
+  // Check if the dark theme is enabled, and send a message to content script
+  if (toggleState) {
+    chrome.tabs.sendMessage(details.tabId, { enabled: toggleState });
+  }
 });
