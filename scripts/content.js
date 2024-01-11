@@ -43,19 +43,24 @@ function rgbToComplement(rgb) {
     const green = parseInt(components[1]);
     const blue = parseInt(components[2]);
 
-    if (!isNaN(red) && !isNaN(green) && !isNaN(blue)) {
-      // Calculating the complement
+    let alpha = 1; // Default alpha value if not provided
+
+    if (components.length >= 4) {
+      alpha = parseFloat(components[3]);
+    }
+
+    if (!isNaN(red) && !isNaN(green) && !isNaN(blue) && !isNaN(alpha)) {
+      // Calculate the complement
       const complementRed = 255 - red;
       const complementGreen = 255 - green;
       const complementBlue = 255 - blue;
 
-      // Formatting the result in RGB format
-      const complementColor = `rgb(${complementRed}, ${complementGreen}, ${complementBlue})`;
+      // Formatting the result in RGBA format
+      const complementColor = `rgba(${complementRed}, ${complementGreen}, ${complementBlue}, ${alpha})`;
 
       return complementColor;
     }
   }
-
   // Handle the case when components are not available or invalid
   console.error("Invalid or missing RGB components:", rgb);
   return rgb;
@@ -83,7 +88,8 @@ function isRGBGreaterThanGray(rgb) {
 function invertColor(node) {
   if (node.nodeType === Node.ELEMENT_NODE) {
     let backgroundColor = getComputedStyle(node).backgroundColor;
-    if (isRGBGreaterThanGray(backgroundColor)) {
+    if (backgroundColor === "") {
+    } else if (isRGBGreaterThanGray(backgroundColor)) {
       node.style.backgroundColor = rgbToComplement(backgroundColor);
     }
     let textColor = getComputedStyle(node).color;
