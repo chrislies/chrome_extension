@@ -1,16 +1,14 @@
 // Function to apply styles
+// prettier-ignore
 function applyExtensionStyles() {
   const bodyElement = document.body;
 
   // Handle document body background color
   if (bodyElement.style.backgroundColor === "") {
-    bodyElement.style.backgroundColor = "rgb(20,20,20)";
+    bodyElement.style.backgroundColor = "rgba(20,20,20,1)";
     // bodyElement.style.color = "white";
   } else if (isRGBGreaterThanGray(bodyElement.style.backgroundColor)) {
-    bodyElement.style.backgroundColor = rgbToComplement(
-      bodyElement.style.backgroundColor
-    );
-    // bodyElement.style.color = rgbToComplement(bodyElement.style.color);
+    bodyElement.style.backgroundColor = rgbToComplement(bodyElement.style.backgroundColor);
   }
   traverseNodes(document.body);
 }
@@ -22,7 +20,7 @@ function removeExtensionStyles() {
 
   // Reset document body styles
   bodyElement.style.backgroundColor = "";
-  bodyElement.style.color = "";
+  // bodyElement.style.color = "";
 
   // Reset styles for all elements
   if (allElements) {
@@ -85,26 +83,56 @@ function isRGBGreaterThanGray(rgb) {
   return false;
 }
 
+const isHexColor = (color) => /^#([0-9A-Fa-f]{3}){1,2}$/.test(color);
+const isRGBorRGBA = (color) =>
+  /^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(,\s*\d*\.?\d+\s*)?\)$/.test(color);
+
+// prettier-ignore
+function hexToRgba(hex) {
+  // If the hex color has 3 characters, expand it to 6 characters
+  const fullHex = hex.length === 4 ? `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}` : hex;
+
+  const r = parseInt(fullHex.slice(1, 3), 16);
+  const g = parseInt(fullHex.slice(3, 5), 16);
+  const b = parseInt(fullHex.slice(5, 7), 16);
+
+  return `rgba(${r}, ${g}, ${b}, 1)`;
+}
+
+// prettier-ignore
 function invertColor(node) {
   if (node.nodeType === Node.ELEMENT_NODE) {
     let backgroundColor = getComputedStyle(node).backgroundColor;
     if (backgroundColor === "") {
     } else if (isRGBGreaterThanGray(backgroundColor)) {
-      node.style.backgroundColor = rgbToComplement(backgroundColor);
+      node.setAttribute(
+        "style",
+        `${node.getAttribute("style") !== null ? `${node.getAttribute("style")} ` : ""}background-color: ${rgbToComplement(backgroundColor)} !important;`
+      );
     }
     let textColor = getComputedStyle(node).color;
     // Check if the text color is not an empty string
-    if (textColor !== "") {
+    if (textColor && !isRGBGreaterThanGray(textColor)) {
       node.style.color = "white";
-      // node.style.color = rgbToComplement(textColor);
+    } else if (!isHexColor(textColor) && !isRGBorRGBA(textColor)) {
+      // text color is in another format:
+      node.style.color = "white";
     }
   }
   if (node.nodeType === Node.TEXT_NODE) {
     let parentElement = node.parentElement;
+    let textColor = getComputedStyle(parentElement).color;
+    // If element's text color is is in hex format, convert it to rgba
+    if (isHexColor(textColor)) {
+      textColor = hexToRgba(textColor);
+    }
+
     if (parentElement.tagName === "A") {
       parentElement.style.color = "#006493"; // blue
+    } else if (!isRGBGreaterThanGray(textColor)) {
+      parentElement.style.color = rgbToComplement(textColor);
     } else {
-      parentElement.style.color = "white";
+      // parentElement.style.color = "white";
     }
   }
 }
@@ -126,8 +154,6 @@ const observer = new MutationObserver((mutationsList) => {
     }
   }
 });
-
-// observer.observe(document.body, { childList: true, subtree: true });
 
 // Add an event listener for messages from popup.js
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
