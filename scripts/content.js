@@ -6,7 +6,6 @@ function applyExtensionStyles() {
   // Handle document body background color
   if (bodyElement.style.backgroundColor === "") {
     bodyElement.style.backgroundColor = "rgba(20,20,20,1)";
-    // bodyElement.style.color = "white";
   } else if (isRGBGreaterThanGray(bodyElement.style.backgroundColor)) {
     bodyElement.style.backgroundColor = rgbToComplement(bodyElement.style.backgroundColor);
   }
@@ -113,10 +112,16 @@ function invertColor(node) {
     let textColor = getComputedStyle(node).color;
     // Check if the text color is not an empty string
     if (textColor && !isRGBGreaterThanGray(textColor)) {
-      node.style.color = "white";
+      node.setAttribute(
+        "style",
+        `${node.getAttribute("style") !== null ? `${node.getAttribute("style")} ` : ""}color: white !important;`
+      );
     } else if (!isHexColor(textColor) && !isRGBorRGBA(textColor)) {
       // text color is in another format:
-      node.style.color = "white";
+      node.setAttribute(
+        "style",
+        `${node.getAttribute("style") !== null ? `${node.getAttribute("style")} ` : ""}color: white !important;`
+      );    
     }
   }
   if (node.nodeType === Node.TEXT_NODE) {
@@ -128,9 +133,11 @@ function invertColor(node) {
     }
 
     if (parentElement.tagName === "A") {
-      parentElement.style.color = "#006493"; // blue
+      // parentElement.style.color = "#006493"; // blue
+      parentElement.setAttribute("style", `color: #006493 !important;`);
     } else if (!isRGBGreaterThanGray(textColor)) {
-      parentElement.style.color = rgbToComplement(textColor);
+      // parentElement.style.color = rgbToComplement(textColor);
+      parentElement.setAttribute("style", `color: ${rgbToComplement(textColor)} !important;`);
     } else {
       // parentElement.style.color = "white";
     }
